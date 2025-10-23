@@ -21,10 +21,12 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const added = ref(false)
 
+const CATALOG_URL = import.meta.env.VITE_APP_CATALOG_URL
+
 onMounted(async () => {
   const id = route.params.id
   try {
-    const res = await axios.get(`http://localhost:8001/api/products/${id}`)
+    const res = await axios.get(`${CATALOG_URL}/products/${id}`)
     product.value = {
       ...res.data,
       price: parseFloat(res.data.price),

@@ -11,6 +11,8 @@ const error = ref<string | null>(null)
 const email = ref('') // <-- New email ref
 
 const total = computed(() => cart.totalPrice.toFixed(2))
+const CHECKOUT_URL = import.meta.env.VITE_APP_CHECKOUT_URL
+
 
 async function checkout() {
   if (!cart.items.length) {
@@ -28,7 +30,7 @@ async function checkout() {
   message.value = null
 
   try {
-    const res = await axios.post('http://localhost:8002/api/orders', {
+    const res = await axios.post(`${CHECKOUT_URL}/orders`, {
       email: email.value, // <-- Send email to backend
       products: cart.items.map((item) => ({
         id: item.id,
