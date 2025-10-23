@@ -8,6 +8,7 @@ const cart = useCartStore()
 const loading = ref(false)
 const message = ref<string | null>(null)
 const error = ref<string | null>(null)
+const email = ref('') // <-- New email ref
 
 const total = computed(() => cart.totalPrice.toFixed(2))
 
@@ -17,20 +18,27 @@ async function checkout() {
     return
   }
 
+  if (!email.value) {
+    error.value = 'Please provide your email.'
+    return
+  }
+
   loading.value = true
   error.value = null
   message.value = null
 
   try {
     const res = await axios.post('http://localhost:8002/api/orders', {
+      email: email.value, // <-- Send email to backend
       products: cart.items.map((item) => ({
         id: item.id,
         quantity: item.quantity,
       })),
     })
 
-    message.value = `✅ Order placed successfully! Total: $${res.data.total.toFixed(2)}`
+    message.value = `✅ Order placed successfully! Total: $${res.data.total.toFixed(2)}. Order summary sent to ${email.value}.`
     cart.clearCart()
+    email.value = '' // Clear email after order
   } catch (err) {
     console.error(err)
     error.value = '❌ Failed to place order. Please try again.'
@@ -44,6 +52,18 @@ async function checkout() {
   <div class="min-h-screen bg-gray-50 p-8">
     <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-md">
       <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Checkout</h1>
+
+      <!-- Email Input -->
+      <div v-if="cart.items.length" class="mb-6">
+        <label class="block text-gray-700 font-medium mb-2" for="email">Email</label>
+        <input
+          id="email"
+          v-model="email"
+          type="email"
+          placeholder="Enter your email"
+          class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+        />
+      </div>
 
       <!-- Cart Summary -->
       <div v-if="cart.items.length" class="mb-8">

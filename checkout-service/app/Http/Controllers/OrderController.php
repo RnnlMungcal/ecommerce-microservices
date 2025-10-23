@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
@@ -16,11 +17,21 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        $products = $request->input('products', []);
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'products' => 'required|array|min:1',
+            'products.*.id' => 'required|integer',
+            'products.*.quantity' => 'required|integer|min:1',
+        ]);
 
-        if (empty($products)) {
-            return response()->json(['error' => 'No products provided'], 400);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
         }
+
+        $validated = $validator->validated();
+
+        $products = $validated['products'];
+        $email = $validated['email'];
 
         $client = new Client();
         $productDetails = [];
@@ -70,6 +81,7 @@ class OrderController extends Controller
             $client->post(env('EMAIL_URL') . '/send', [
                 'json' => [
                     'order_id' => $order->id,
+                    'send_to' => $email,
                     'products' => $productDetails,
                     'total' => $total,
                 ]
