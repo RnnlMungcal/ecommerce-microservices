@@ -28,13 +28,26 @@
                 <tr>
                     <td valign="top"><strong>Products:</strong></td>
                     <td>
-                        <ul style="margin: 0; padding-left: 20px;"> 
-                            @foreach ($order['products'] as $product)
-                            <li>
-                                {{ $product['name'] }} — ${{ number_format($product['price'], 2) }}
-                            </li>
-                            @endforeach 
-                        </ul>
+                        <table width="100%" cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
+                            <thead>
+                                <tr style="background-color: #f2f2f2;">
+                                    <th align="left" style="border-bottom: 1px solid #ddd;">Product</th>
+                                    <th align="center" style="border-bottom: 1px solid #ddd;">Quantity</th>
+                                    <th align="right" style="border-bottom: 1px solid #ddd;">Price</th>
+                                    <th align="right" style="border-bottom: 1px solid #ddd;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($order['products'] as $product)
+                                <tr>
+                                    <td style="border-bottom: 1px solid #eee;">{{ $product['name'] }}</td>
+                                    <td align="center" style="border-bottom: 1px solid #eee;">{{ $product['quantity'] }}</td>
+                                    <td align="right" style="border-bottom: 1px solid #eee;">${{ number_format($product['price'], 2) }}</td>
+                                    <td align="right" style="border-bottom: 1px solid #eee;">${{ number_format($product['subtotal'], 2) }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </td>
                 </tr>
             </table>
