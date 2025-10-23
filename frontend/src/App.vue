@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import { useCartStore } from '@/stores/cartStore'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { ShoppingCart } from 'lucide-vue-next' // optional icon from lucide
 
 const cart = useCartStore()
-const cartCount = computed(() => cart.totalItems)
+const cartCount = computed(() => cart.totalItems) 
+
+onMounted(() => {
+  cart.loadCart()
+})
+
 </script>
 
 <template>
@@ -32,11 +37,10 @@ const cartCount = computed(() => cart.totalItems)
 
           <!-- Cart Button -->
           <RouterLink
-            to="/checkout"
+            to="/cart"
             class="relative flex items-center gap-1 text-gray-700 hover:text-blue-600 transition"
           >
-            <ShoppingCart class="w-5 h-5" />
-            <span>Cart</span>
+            <ShoppingCart class="w-5 h-5" /> 
             <span
               v-if="cartCount > 0"
               class="absolute -top-2 -right-3 bg-red-600 text-white text-xs font-bold rounded-full px-2 py-[2px]"

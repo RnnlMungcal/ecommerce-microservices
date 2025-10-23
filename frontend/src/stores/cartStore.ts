@@ -34,6 +34,21 @@ export const useCartStore = defineStore('cart', {
       this.saveCart()
     },
 
+    increaseQty(id: number) {
+      const item = this.items.find((i) => i.id === id)
+      if (item) item.quantity += 1
+      this.saveCart()
+    },
+
+    decreaseQty(id: number) {
+      const item = this.items.find((i) => i.id === id)
+      if (item) {
+        if (item.quantity > 1) item.quantity -= 1
+        else this.removeFromCart(id)
+      }
+      this.saveCart()
+    },
+
     clearCart() {
       this.items = []
       localStorage.removeItem('cart')
