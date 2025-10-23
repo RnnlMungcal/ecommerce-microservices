@@ -55,10 +55,10 @@ const handleAddToCart = () => {
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Header -->
-    <section class="bg-gradient-to-r from-teal-500 to-blue-600 text-white py-16 text-center">
+    <section class="bg-teal-500 to-blue-600 text-white py-16 text-center">
       <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2">Product Details</h1>
       <p class="text-blue-100 max-w-2xl mx-auto">
-        Learn more about this product — powered by Laravel Microservices.
+        Learn more about this product
       </p>
     </section>
 

@@ -38,7 +38,7 @@ onMounted(async () => {
     >
       <h1 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Product Catalog</h1>
       <p class="text-lg text-blue-100 max-w-2xl mx-auto">
-        Explore our full collection — powered by Laravel Microservices.
+        Explore our full collection
       </p>
     </section>
 

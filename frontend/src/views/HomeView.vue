@@ -35,7 +35,7 @@ onMounted(async () => {
         Discover Your Next Favorite Product
       </h1>
       <p class="text-lg text-blue-100 mb-8 max-w-2xl">
-        Shop with ease and confidence — powered by Laravel Microservices.
+        Shop with ease and confidence.
       </p>
      <router-link
         to="/products" 
