@@ -28,10 +28,12 @@
                 <tr>
                     <td valign="top"><strong>Products:</strong></td>
                     <td>
-                        <ul style="margin: 0; padding-left: 20px;">
+                        <ul style="margin: 0; padding-left: 20px;"> 
                             @foreach ($order['products'] as $product)
-                                <li>{{ $product }}</li>
-                            @endforeach
+                            <li>
+                                {{ $product['name'] }} — ${{ number_format($product['price'], 2) }}
+                            </li>
+                            @endforeach 
                         </ul>
                     </td>
                 </tr>
