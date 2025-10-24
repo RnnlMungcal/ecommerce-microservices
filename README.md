@@ -214,6 +214,8 @@ Response:
 
 ## 🧪 Testing the System
 
+For detailed frontend testing steps, see the [Frontend Testing Guide](./docs/FRONTEND_TESTING.md).
+
 1. **List Products**
 
    ```bash
