@@ -1,11 +1,11 @@
 # E-commerce Microservices System (Laravel + MySQL + Docker)
 
-This repository demonstrates a simple **microservices architecture** using **Laravel**, **MySQL**, and **Docker**.  
+This repository demonstrates a simple **microservices architecture** using **Laravel**, **MySQL**, and **Docker**.
 It contains three independent services:
 
 1. **Catalog Service** – Manages and lists products.
 2. **Checkout Service** – Handles orders, validates products, and triggers confirmation emails.
-3. **Email Service** – Sends order confirmation emails.
+3. **Email Service** – Sends order confirmation emails via **MailHog** (for testing).
 
 ---
 
@@ -14,13 +14,12 @@ It contains three independent services:
 Each service runs in its own Docker container with its own MySQL database.
 
 ```
-
-Client → Checkout → Catalog → Email
+Client → Checkout → Catalog → Email → MailHog
 ```
 
-- **Catalog** exposes endpoints to list and show products.
-- **Checkout** consumes Catalog APIs to validate product details and calls Email Service.
-- **Email** sends confirmation emails (via Mailtrap for testing).
+* **Catalog** exposes endpoints to list and show products.
+* **Checkout** consumes Catalog APIs to validate product details and calls Email Service.
+* **Email** sends confirmation emails (captured by **MailHog** for testing).
 
 ---
 
@@ -28,10 +27,10 @@ Client → Checkout → Catalog → Email
 
 Before running this project, ensure you have:
 
-- [Docker](https://www.docker.com/) & Docker Compose installed
-- [Composer](https://getcomposer.org/) installed (optional, for local Laravel setup)
-- Git installed
-- Free AWS account (for EC2 deployment or CloudFormation provisioning)
+* [Docker](https://www.docker.com/) & Docker Compose installed
+* [Composer](https://getcomposer.org/) installed (optional, for local Laravel setup)
+* Git installed
+* (Optional) AWS account for EC2 or CloudFormation deployment
 
 ---
 
@@ -58,6 +57,7 @@ Services running locally:
 | Catalog  | [http://localhost:8001](http://localhost:8001) | Lists available products     |
 | Checkout | [http://localhost:8002](http://localhost:8002) | Accepts and processes orders |
 | Email    | [http://localhost:8003](http://localhost:8003) | Sends confirmation emails    |
+| MailHog  | [http://localhost:8025](http://localhost:8025) | Web UI to view test emails   |
 
 ---
 
@@ -87,22 +87,39 @@ DB_USERNAME=user
 DB_PASSWORD=password
 ```
 
-Example for **Checkout Service**, add other services urls variables (`checkout-service/.env`):
+Example for **Checkout Service**, add other services’ URLs (`checkout-service/.env`):
 
 ```env
 CATALOG_URL=http://catalog-service:8000/api
 EMAIL_URL=http://email-service:8000/api
 ```
 
-For **Email Service**, configure Mailtrap (`email-service/.env`):
+For **Email Service**, configure **MailHog** (`email-service/.env`):
+
+If running locally via Docker:
 
 ```env
 MAIL_MAILER=smtp
-MAIL_HOST=smtp.mailtrap.io
-MAIL_PORT=2525
-MAIL_USERNAME=your_mailtrap_username
-MAIL_PASSWORD=your_mailtrap_password
+MAIL_HOST=mailhog          # Service name from docker-compose.yml
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
 MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS=noreply@ecommerce.local
+MAIL_FROM_NAME="Ecommerce Platform"
+```
+
+If using a private IP (e.g., in ECS or remote setup):
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=10.0.1.35        # Replace with MailHog private IP
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS=noreply@ecommerce.local
+MAIL_FROM_NAME="Ecommerce Platform"
 ```
 
 Example for **Frontend Service**, configure URLs (`frontend/.env`):
@@ -124,7 +141,7 @@ docker exec -it checkout-service php artisan migrate
 docker exec -it email-service php artisan migrate
 ```
 
-Catalog service will seed sample products based on [ProductSeeder.php](./catalog-service/database/seeders/ProductSeeder.php)
+Catalog service will seed sample products from [ProductSeeder.php](./catalog-service/database/seeders/ProductSeeder.php).
 
 ---
 
@@ -150,10 +167,7 @@ Catalog service will seed sample products based on [ProductSeeder.php](./catalog
 {
   "email": "john@example.com",
   "products": [
-    {
-      "id": 1,
-      "quantity": 1
-    }
+    { "id": 1, "quantity": 1 }
   ]
 }
 ```
@@ -190,13 +204,7 @@ Sample payload:
   "order_id": 1,
   "send_to": "john@example.com",
   "products": [
-    {
-      "id": 1,
-      "name": "Gaming Laptop",
-      "price": "1500.00",
-      "quantity": 1,
-      "subtotal": 1500
-    }
+    { "id": 1, "name": "Gaming Laptop", "price": "1500.00", "quantity": 1, "subtotal": 1500 }
   ],
   "total": 1500.0
 }
@@ -205,9 +213,7 @@ Sample payload:
 Response:
 
 ```json
-{
-  "status": "Email sent"
-}
+{ "status": "Email sent" }
 ```
 
 ---
@@ -227,33 +233,33 @@ For detailed frontend testing steps, see the [Frontend Testing Guide](./docs/FRO
    ```bash
    curl -X POST http://localhost:8002/api/orders \
      -H "Content-Type: application/json" \
-     -d '{ "products": [ { "id": 1, "quantity": 1 }, { "id": 2, "quantity": 1 }, { "id": 3, "quantity": 1 } ] }'
+     -d '{ "email": "john@example.com", "products": [ { "id": 1, "quantity": 1 } ] }'
    ```
 
-3. **Check Email Logs (Mailtrap)**
+3. **Check Email Logs (MailHog)**
 
-   - Go to your Mailtrap inbox and verify the confirmation email.
+   Open [http://localhost:8025](http://localhost:8025) to view the test email.
 
 ---
 
 ## ☁️ AWS Deployment (CloudFormation)
 
-This project can be deployed entirely using **AWS CloudFormation**.  
+This project can be deployed entirely using **AWS CloudFormation**.
 For detailed deployment steps, see the [CloudFormation Deployment Guide](./docs/CLOUD_FORMATION_README.md).
 
 ### 1️⃣ Ensure prerequisites
 
-- AWS CLI installed and configured with your AWS account
-- Docker installed locally (optional if building locally before deployment)
-- CloudFormation template: `microservices-stack.yaml`
+* AWS CLI installed and configured
+* Docker installed locally (optional if building locally before deployment)
+* CloudFormation template: `microservices-stack.yaml`
 
 ### 2️⃣ Setup Environment Files
 
 Create an S3 bucket called `envs-cloudformation` and upload the `.env` files:
 
-- `catalog.env`
-- `checkout.env`
-- `email.env`
+* `catalog.env`
+* `checkout.env`
+* `email.env`
 
 These files will be used by the containers after deployment.
 
@@ -276,19 +282,19 @@ aws iam put-role-policy \
 
 ## 🏗️ Future Enhancements
 
-- Add **RabbitMQ or Redis queues** for async email processing
-- Add **Authentication (JWT)** for user management
+* Add **RabbitMQ or Redis queues** for async email processing
+* Add **Authentication (JWT)** for user management
 
 ---
 
 ## 🧑‍💻 Author
 
 Developed by [Ronnel Mungcal]
-📧 [[rnnlmungcal@gmail.com](mailto:rnnlmungcal@gmail.com)]
+📧 [rnnlmungcal@gmail.com](mailto:rnnlmungcal@gmail.com)
 🌐 [https://github.com/RnnlMungcal](https://github.com/RnnlMungcal)
 
 ---
 
 ## 📄 License
 
-This project is open-sourced under the [MIT License](LICENSE).
+This project is open-sourced under the [MIT License](LICENSE). 
