@@ -81,6 +81,15 @@ services:
       - checkout-service
       - email-service
 
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    restart: always
+    ports:
+      - "1025:1025" # SMTP port (used by Laravel)
+      - "8025:8025" # Web UI port
+
+
 
 volumes:
   catalog-db-data:
